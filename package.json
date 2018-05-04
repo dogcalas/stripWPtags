@@ -7,7 +7,7 @@
     "type": "git",
     "url": "https://github.com/dogcalas/stripWPtags.git"
   },
-  "main": "src/stripWPtags.js",
+  "main": "src/striptags.js",
   "version": "3.1.1",
   "devDependencies": {
     "istanbul": "^0.4.5",
