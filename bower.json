@@ -1,19 +1,19 @@
 {
-  "name": "striptags",
+  "name": "stripWPtags",
   "description": "PHP strip_tags in Node.js",
-  "main": "striptags.js",
+  "main": "stripWPtags.js",
   "authors": [
     "Eric Norris (https://github.com/ericnorris)"
   ],
   "license": "MIT",
   "keywords": [
-    "striptags",
+    "stripWPtags",
     "strip_tags",
     "html",
     "strip",
     "tags"
   ],
-  "homepage": "https://github.com/ericnorris/striptags",
+  "homepage": "https://github.com/ericnorris/stripWPtags",
   "ignore": [
     "**/.*",
     "node_modules",

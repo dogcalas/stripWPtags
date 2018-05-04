@@ -18,28 +18,28 @@
     const ALLOWED_TAGS_REGEX  = /\[(\w*)\]/g;
     const NORMALIZE_TAG_REGEX = /\[\/?([^\s\/\]]+)/;
 
-    function striptags(html, allowable_tags, tag_replacement) {
+    function stripWPtags(html, allowable_tags, tag_replacement) {
         html            = html || '';
         allowable_tags  = allowable_tags || [];
         tag_replacement = tag_replacement || '';
 
         let context = init_context(allowable_tags, tag_replacement);
 
-        return striptags_internal(html, context);
+        return stripWPtags_internal(html, context);
     }
 
-    function init_striptags_stream(allowable_tags, tag_replacement) {
+    function init_stripWPtags_stream(allowable_tags, tag_replacement) {
         allowable_tags  = allowable_tags || [];
         tag_replacement = tag_replacement || '';
 
         let context = init_context(allowable_tags, tag_replacement);
 
-        return function striptags_stream(html) {
-            return striptags_internal(html || '', context);
+        return function stripWPtags_stream(html) {
+            return stripWPtags_internal(html || '', context);
         };
     }
 
-    striptags.init_streaming_mode = init_striptags_stream;
+    stripWPtags.init_streaming_mode = init_stripWPtags_stream;
 
     function init_context(allowable_tags, tag_replacement) {
         allowable_tags = parse_allowable_tags(allowable_tags);
@@ -55,7 +55,7 @@
         };
     }
 
-    function striptags_internal(html, context) {
+    function stripWPtags_internal(html, context) {
         let allowable_tags  = context.allowable_tags;
         let tag_replacement = context.tag_replacement;
 
@@ -220,16 +220,16 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD
-        define(function module_factory() { return striptags; });
+        define(function module_factory() { return stripWPtags; });
     }
 
     else if (typeof module === 'object' && module.exports) {
         // Node
-        module.exports = striptags;
+        module.exports = stripWPtags;
     }
 
     else {
         // Browser
-        global.striptags = striptags;
+        global.stripWPtags = stripWPtags;
     }
 }(this));

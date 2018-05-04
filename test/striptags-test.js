@@ -4,10 +4,10 @@
 let assert    = require('assert');
 let fs        = require('fs');
 let vm        = require('vm');
-let striptags = require('../');
+let stripWPtags = require('../');
 
 
-describe('striptags', function() {
+describe('stripWPtags', function() {
     describe('#module', function() {
         let path   = require.resolve('../');
         let src    = fs.readFileSync(path);
@@ -18,7 +18,7 @@ describe('striptags', function() {
 
             script.runInNewContext({module});
 
-            assert.equal(module.exports.toString(), striptags.toString());
+            assert.equal(module.exports.toString(), stripWPtags.toString());
         });
 
         it('should define an AMD module', function() {
@@ -31,7 +31,7 @@ describe('striptags', function() {
 
             script.runInNewContext({define});
 
-            assert.equal(module.toString(), striptags.toString());
+            assert.equal(module.toString(), stripWPtags.toString());
         });
 
         it('should define a browser global', function() {
@@ -39,122 +39,122 @@ describe('striptags', function() {
 
             script.runInNewContext(global);
 
-            assert.notEqual(global.striptags, null);
+            assert.notEqual(global.stripWPtags, null);
         });
     });
 
     describe('with no optional parameters', function() {
         it('should not strip invalid tags', function() {
-            let text = 'lorem ipsum < a> < div>';
+            let text = 'lorem ipsum [ a] [ div]';
 
-            assert.equal(striptags(text), text);
+            assert.equal(stripWPtags(text), text);
         });
 
         it('should remove simple HTML tags', function() {
-            let html = '<a href="">lorem <strong>ipsum</strong></a>',
+            let html = '[a href=""]lorem [strong]ipsum[/strong][/a]',
                 text = 'lorem ipsum';
 
-            assert.equal(striptags(html), text);
+            assert.equal(stripWPtags(html), text);
         });
 
         it('should remove comments', function() {
-            let html = '<!-- lorem -- ipsum -- --> dolor sit amet',
+            let html = '[!-- lorem -- ipsum -- --] dolor sit amet',
                 text = ' dolor sit amet';
 
-            assert.equal(striptags(html), text);
+            assert.equal(stripWPtags(html), text);
         });
 
         it('should strip tags within comments', function() {
-            let html = '<!-- <strong>lorem ipsum</strong> --> dolor sit',
+            let html = '[!-- [strong]lorem ipsum[/strong] --] dolor sit',
                 text = ' dolor sit';
 
-            assert.equal(striptags(html), text);
+            assert.equal(stripWPtags(html), text);
         });
 
 
         it('should not fail with nested quotes', function() {
-            let html = '<article attr="foo \'bar\'">lorem</article> ipsum',
+            let html = '[article attr="foo \'bar\'"]lorem[/article] ipsum',
                 text = 'lorem ipsum';
 
-            assert.equal(striptags(html), text);
+            assert.equal(stripWPtags(html), text);
         });
     });
 
     describe('#allowed_tags', function() {
         it('should parse a string', function() {
-            let html = '<strong>lorem ipsum</strong>',
-                allowed_tags = '<strong>';
+            let html = '[strong]lorem ipsum[/strong]',
+                allowed_tags = '[strong]';
 
-            assert.equal(striptags(html, allowed_tags), html);
+            assert.equal(stripWPtags(html, allowed_tags), html);
         });
 
         it('should take an array', function() {
-            let html = '<strong>lorem <em>ipsum</em></strong>',
+            let html = '[strong]lorem [em]ipsum[/em][/strong]',
                 allowed_tags = ['strong', 'em'];
 
-            assert.equal(striptags(html, allowed_tags), html);
+            assert.equal(stripWPtags(html, allowed_tags), html);
         });
     });
 
     describe('with allowable_tags parameter', function() {
         it('should leave attributes when allowing HTML', function() {
-            let html = '<a href="https://example.com">lorem ipsum</a>',
-                allowed_tags = '<a>';
+            let html = '[a href="https://example.com"]lorem ipsum[/a]',
+                allowed_tags = '[a]';
 
-            assert.equal(striptags(html, allowed_tags), html);
+            assert.equal(stripWPtags(html, allowed_tags), html);
         });
 
-        it('should strip extra < within tags', function() {
-            let html = '<div<>>lorem ipsum</div>',
-                text = '<div>lorem ipsum</div>',
-                allowed_tags = '<div>';
+        it('should strip extra [ within tags', function() {
+            let html = '[div[]]lorem ipsum[/div]',
+                text = '[div]lorem ipsum[/div]',
+                allowed_tags = '[div]';
 
-            assert.equal(striptags(html, allowed_tags), text);
+            assert.equal(stripWPtags(html, allowed_tags), text);
         });
 
-        it('should strip <> within quotes', function() {
-            let html = '<a href="<script>">lorem ipsum</a>',
-                text = '<a href="script">lorem ipsum</a>',
-                allowed_tags = '<a>';
+        it('should strip [] within quotes', function() {
+            let html = '[a href="[script]"]lorem ipsum[/a]',
+                text = '[a href="script"]lorem ipsum[/a]',
+                allowed_tags = '[a]';
 
-            assert.equal(striptags(html, allowed_tags), text);
+            assert.equal(stripWPtags(html, allowed_tags), text);
         });
     });
 
     describe('with tag_replacement parameter', function() {
         it('should replace tags with that parameter', function() {
-            var html = 'Line One<br>Line Two',
+            var html = 'Line One[br]Line Two',
                 allowed_tags = [],
                 tag_replacement = '\n',
                 text = 'Line One\nLine Two';
 
-            assert.equal(striptags(html, allowed_tags, tag_replacement), text);
+            assert.equal(stripWPtags(html, allowed_tags, tag_replacement), text);
         });
     });
 
     describe('#streaming_mode', function() {
         it('should strip streamed HTML', function() {
-            let striptags_stream = striptags.init_streaming_mode();
+            let stripWPtags_stream = stripWPtags.init_streaming_mode();
 
-            let part_one   = striptags_stream('lorem ipsum <stro');
-            let part_two   = striptags_stream('ng>dolor sit <');
-            let part_three = striptags_stream(' amet');
+            let part_one   = stripWPtags_stream('lorem ipsum [stro');
+            let part_two   = stripWPtags_stream('ng]dolor sit [');
+            let part_three = stripWPtags_stream(' amet');
 
             assert.equal(part_one, 'lorem ipsum ');
             assert.equal(part_two, 'dolor sit ');
-            assert.equal(part_three, '< amet');
+            assert.equal(part_three, '[ amet');
         });
 
         it('should work with allowable_tags', function() {
-            let striptags_stream = striptags.init_streaming_mode(['strong']);
+            let stripWPtags_stream = stripWPtags.init_streaming_mode(['strong']);
 
-            let part_one   = striptags_stream('lorem ipsum <stro');
-            let part_two   = striptags_stream('ng>dolor sit <');
-            let part_three = striptags_stream(' amet');
+            let part_one   = stripWPtags_stream('lorem ipsum [stro');
+            let part_two   = stripWPtags_stream('ng]dolor sit [');
+            let part_three = stripWPtags_stream(' amet');
 
             assert.equal(part_one, 'lorem ipsum ');
-            assert.equal(part_two, '<strong>dolor sit ');
-            assert.equal(part_three, '< amet');
+            assert.equal(part_two, '[strong]dolor sit ');
+            assert.equal(part_three, '[ amet');
         });
     });
 });
