@@ -12,7 +12,7 @@ An implementation of PHP's [strip_tags](http://www.php.net/manual/en/function.st
 
 ## Installing
 ```
-npm install stripWPtags
+npm install stripwptags
 ```
 
 ## Basic Usage
